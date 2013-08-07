@@ -1,18 +1,62 @@
 class libcrange::install (
   $libcrange_name     = 'libcrange',
   $libcrange_home     = '/usr',
-  $libcrange_temp     = '/tmp',
+  $libcrange_temp     = '/tmp/libcrange',
   $libcrange_provider = 'git',
   $libcrange_giturl   = 'https://github.com/boinger/libcrange.git',
   )
 {
+
+  define pkg_install {
+    if (!defined(Package["${name}"])){
+      package {
+        $name:
+          ensure => installed;
+      }
+    }
+  }
+
+  $range_deps = [
+    "apr",
+    "flex",
+    "libyaml",
+    "pcre",
+    "perl",
+    "perl-YAML-Syck",
+    "perl-core",
+    "perl-libs",
+    "sqlite",
+    ]
+
+  pkg_install { $range_deps: }
+
   if $libcrange_provider == 'package' {
     package {
       'libcrange':
-        ensure => 'latest';
+        ensure => 'present';
     }
   }
   elsif $libcrange_provider == 'git' {
+
+    $range_build_deps =  [
+      ## build tools
+      'autoconf',
+      'automake',
+      'bison',
+      'byacc',
+      'gcc',
+      'libtool',
+      'make',
+      ## package build deps
+      'apr-devel',
+      'libyaml-devel',
+      'pcre-devel',
+      'perl-devel',
+      'sqlite-devel',
+      ]
+
+    pkg_install { $range_build_deps: }
+
 
     file {
       "${libcrange_temp}":
@@ -22,8 +66,8 @@ class libcrange::install (
     exec {
       "git clone libcrange":
         cwd     => $libcrange_temp,
-        command => "git clone $libcrange_url",
-        creates => $libcrange_temp/libcrange,
+        command => "git clone $libcrange_giturl",
+        creates => "${libcrange_temp}/libcrange",
         timeout => 0,
         path    => ["/usr/bin"],
         require => [
@@ -37,10 +81,10 @@ class libcrange::install (
         creates => "${libcrange_temp}/libcrange/source/src/libcrange.la",
         require => Exec['git clone libcrange'];
 
-      "make libcrange":
+      "install libcrange":
         cwd     => "${libcrange_temp}/libcrange/source",
         user    => root,
-        command => "make install",
+        command => "make install && ldconfig",
         creates => "${libcrange_home}/bin/crange",
         require => Exec['make libcrange'];
     }
