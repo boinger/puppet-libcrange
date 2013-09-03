@@ -1,7 +1,7 @@
 puppet-libcrange
 ================
 
-installs & (eventually) configures libcrange
+installs & (eventually) configures [libcrange](https://github.com/boinger/libcrange.git)
 
 ##Usage##
 Below shows the defaults.
