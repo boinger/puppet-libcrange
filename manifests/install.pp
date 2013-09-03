@@ -7,7 +7,7 @@ class libcrange::install (
   )
 {
 
-  define pkg_install {
+  define pkg_install { ## Local define to make the dependent package installs go smoothly without conflicts
     if (!defined(Package["${name}"])){
       package {
         $name:
@@ -57,7 +57,6 @@ class libcrange::install (
 
     pkg_install { $range_build_deps: }
 
-
     file {
       "${libcrange_temp}":
         ensure => directory;
@@ -90,6 +89,6 @@ class libcrange::install (
     }
  }
  elsif $libcrange_provider == 'external' {
-    notify { "It's up to you to provde $libcrange_jar": }
+    notify { "It's up to you to provde libcrange": }
   }
 }
