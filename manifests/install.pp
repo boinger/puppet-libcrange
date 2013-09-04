@@ -8,7 +8,7 @@ class libcrange::install (
 {
 
   define pkg_install { ## Local define to make the dependent package installs go smoothly without conflicts
-    if (!defined(Package["${name}"])){
+    if (!defined(Package[$name])){
       package {
         $name:
           ensure => installed;
@@ -30,6 +30,38 @@ class libcrange::install (
 
   pkg_install { $range_deps: }
 
+  $build_tools = [
+    'autoconf',
+    'automake',
+    'bison',
+    'byacc',
+    'gcc',
+    'libtool',
+    'make',
+  ]
+
+  pkg_install { $build_tools: }
+
+  $mod_ranged_deps = [
+    ## apache mod deps
+    #'flex',
+    #'libyaml',
+    'perl-ExtUtils-MakeMaker',
+    'perl-ExtUtils-Embed',
+    'perl-Test-Simple',
+    'perl-libwww-perl',
+    #'pcre',
+    'zlib',
+    ## apache mod build deps
+    'apr-util-devel',
+    'httpd-devel',
+    #'pcre-devel',
+    #'sqlite-devel',
+    'zlib-devel',
+    ]
+
+  pkg_install { $mod_ranged_deps: }
+
   if $libcrange_provider == 'package' {
     package {
       'libcrange':
@@ -38,22 +70,13 @@ class libcrange::install (
   }
   elsif $libcrange_provider == 'git' {
 
-    $range_build_deps =  [
-      ## build tools
-      'autoconf',
-      'automake',
-      'bison',
-      'byacc',
-      'gcc',
-      'libtool',
-      'make',
-      ## package build deps
+    $range_build_deps = [
       'apr-devel',
       'libyaml-devel',
       'pcre-devel',
       'perl-devel',
       'sqlite-devel',
-      ]
+    ]
 
     pkg_install { $range_build_deps: }
 
