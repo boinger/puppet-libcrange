@@ -144,10 +144,16 @@ class libcrange::install (
       $mod_ranged_temp:
         ensure => directory;
 
+      [ "/etc/range", "/etc/range/conf", ]:
+        mode   => 0755,
+        ensure => directory;
+
+
       "/etc/httpd/conf.d/${mod_ranged_name}.conf":
-        mode   => 644,
-        source => "puppet:///modules/${module_name}/etc/httpd/conf.d/mod_ranged.conf",
-        notify => Service['httpd'];
+        mode    => 644,
+        source  => "puppet:///modules/${module_name}/etc/httpd/conf.d/mod_ranged.conf",
+        notify  => Service['httpd'],
+        require => Package['httpd'];
     }
 
     exec {
