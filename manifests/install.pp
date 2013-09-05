@@ -104,6 +104,15 @@ class libcrange::install (
         creates => "${libcrange_home}/bin/crange",
         require => Exec["make ${libcrange_name}"];
     }
+
+    if $lib != 'lib' {
+      file {
+        "/usr/$lib/libcrange.so.0":
+          ensure => '/usr/lib/libcrange.so.0',
+          require => Exec["install ${libcrange_name}"];
+      }
+    }
+
   }
   elsif $libcrange_provider == 'external' {
     notify { "It's up to you to provde libcrange": }
@@ -142,6 +151,11 @@ class libcrange::install (
         mode   => 0755,
         ensure => directory;
 
+      "/etc/range.conf":
+        content => "loadmodule nodescf\n";
+
+      "/etc/httpd/htdocs":
+        ensure => "/var/www/html";
 
       "/etc/httpd/conf.d/${mod_ranged_name}.conf":
         mode    => 644,
