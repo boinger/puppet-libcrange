@@ -155,7 +155,7 @@ class libcrange::install (
         require => Package['httpd'];
 
       "/etc/range/test/nodes.cf":
-        content => "NAME\n\tINCLUDE q(jeff vier)\n";
+        content => "HB\n\tINCLUDE q(OK)\n";
     }
 
     exec {
