@@ -138,7 +138,7 @@ class libcrange::install (
     pkg_install { $mod_ranged_deps: }
 
     file {
-      [ "/etc/range", "/etc/range/conf", ]:
+      [ "/etc/range", "/etc/range/test", ]:
         mode   => 0755,
         ensure => directory;
 
@@ -153,6 +153,9 @@ class libcrange::install (
         source  => "puppet:///modules/${module_name}/etc/httpd/conf.d/mod_ranged.conf",
         notify  => Service['httpd'],
         require => Package['httpd'];
+
+      "/etc/range/test/nodes.cf":
+        content => "NAME\n\tINCLUDE q(jeff vier)\n";
     }
 
     exec {
