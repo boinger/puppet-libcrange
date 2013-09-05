@@ -61,13 +61,7 @@ class libcrange::install (
 
   pkg_install { $range_deps: }
 
-  if $libcrange_provider == 'package' {
-    package {
-      $libcrange_name:
-        ensure => 'present';
-    }
-  }
-  elsif $libcrange_provider == 'git' {
+  if $libcrange_provider == 'git' {
 
     $range_build_deps = [
       'apr-devel',
@@ -114,17 +108,11 @@ class libcrange::install (
     }
 
   }
-  elsif $libcrange_provider == 'external' {
+  else {
     notify { "It's up to you to provde libcrange": }
   }
 
-  if $mod_ranged_provider == 'package' {
-    package {
-      $mod_ranged_name:
-        ensure => 'present';
-    }
-  }
-  elsif $mod_ranged_provider == 'git' {
+  if $mod_ranged_provider == 'git' {
 
     $mod_ranged_deps = [
       ## apache mod deps
@@ -181,6 +169,7 @@ class libcrange::install (
         command => "/usr/sbin/apxs -c mod_ranged.c -lcrange",
         creates => "${temp_dir}/$mod_ranged_name/source/.libs/${mod_ranged_name}.so",
         require => [
+          Exec["install ${libcrange_name}"],
           Exec["git clone ${mod_ranged_name}"],
           Package["httpd"],
           ];
@@ -194,7 +183,7 @@ class libcrange::install (
     }
 
   }
-  elsif $mod_ranged_provider == 'external' {
+  else {
     notify { "It's up to you to provde mod_ranged": }
   }
 
