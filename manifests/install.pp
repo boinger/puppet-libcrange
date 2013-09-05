@@ -1,11 +1,10 @@
 class libcrange::install (
   $libcrange_name      = 'libcrange',
   $libcrange_home      = '/usr',
-  $libcrange_temp      = '/tmp/libcrange',
+  $temp_dir            = '/tmp/range',
   $libcrange_provider  = 'git',
   $libcrange_giturl    = 'https://github.com/boinger/libcrange.git',
   $mod_ranged_name     = 'mod_ranged',
-  $mod_ranged_temp     = '/tmp/mod_ranged',
   $mod_ranged_provider = 'git',
   $mod_ranged_giturl   = 'https://github.com/boinger/mod_ranged.git',
   )
@@ -23,6 +22,11 @@ class libcrange::install (
           ensure => installed;
       }
     }
+  }
+
+  file {
+    $temp_dir:
+      ensure => directory;
   }
 
   file {
@@ -77,31 +81,26 @@ class libcrange::install (
 
     pkg_install { $range_build_deps: }
 
-    file {
-      $libcrange_temp:
-        ensure => directory;
-    }
-
     exec {
       "git clone ${libcrange_name}":
-        cwd     => $libcrange_temp,
+        cwd     => $temp_dir,
         command => "git clone $libcrange_giturl",
-        creates => "${libcrange_temp}/${libcrange_name}",
+        creates => "${temp_dir}/${libcrange_name}",
         timeout => 0,
         path    => ["/usr/bin"],
         require => [
           Package['git'],
-          File["${libcrange_temp}"],
+          File["${temp_dir}"],
         ];
 
       "make ${libcrange_name}":
-        cwd     => "${libcrange_temp}/${libcrange_name}/source",
+        cwd     => "${temp_dir}/${libcrange_name}/source",
         command => "aclocal && libtoolize --force && autoheader && automake -a && autoconf && ./configure --prefix=/usr && make",
-        creates => "${libcrange_temp}/${libcrange_name}/source/src/libcrange.la",
+        creates => "${temp_dir}/${libcrange_name}/source/src/libcrange.la",
         require => Exec["git clone ${libcrange_name}"];
 
       "install ${libcrange_name}":
-        cwd     => "${libcrange_temp}/${libcrange_name}/source",
+        cwd     => "${temp_dir}/${libcrange_name}/source",
         user    => root,
         command => "make install && ldconfig",
         creates => "${libcrange_home}/bin/crange",
@@ -141,9 +140,6 @@ class libcrange::install (
     pkg_install { $mod_ranged_deps: }
 
     file {
-      $mod_ranged_temp:
-        ensure => directory;
-
       [ "/etc/range", "/etc/range/conf", ]:
         mode   => 0755,
         ensure => directory;
@@ -158,27 +154,27 @@ class libcrange::install (
 
     exec {
       "git clone ${mod_ranged_name}":
-        cwd     => $mod_ranged_temp,
+        cwd     => $temp_dir,
         command => "git clone $mod_ranged_giturl",
-        creates => "${mod_ranged_temp}/${mod_ranged_name}",
+        creates => "${temp_dir}/${mod_ranged_name}",
         timeout => 0,
         path    => ["/usr/bin"],
         require => [
           Package['git'],
-          File["${mod_ranged_temp}"],
+          File["${temp_dir}"],
         ];
 
       "apxs ${mod_ranged_name}":
-        cwd     => "${mod_ranged_temp}/${mod_ranged_name}/source",
+        cwd     => "${temp_dir}/${mod_ranged_name}/source",
         command => "/usr/sbin/apxs -c mod_ranged.c -lcrange",
-        creates => "${mod_ranged_temp}/$mod_ranged_name/source/.libs/${mod_ranged_name}.so",
+        creates => "${temp_dir}/$mod_ranged_name/source/.libs/${mod_ranged_name}.so",
         require => [
           Exec["git clone ${mod_ranged_name}"],
           Package["httpd"],
           ];
 
       "install ${mod_ranged_name}.so":
-        cwd     => "${mod_ranged_temp}/${mod_ranged_name}/source",
+        cwd     => "${temp_dir}/${mod_ranged_name}/source",
         command => "/usr/bin/install -m 0755 .libs/${mod_ranged_name}.so /usr/${lib}/httpd/modules",
         creates => "/usr/${lib}/httpd/modules/${mod_ranged_name}.so",
         notify  => Service['httpd'],
