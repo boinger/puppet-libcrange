@@ -27,9 +27,7 @@ class libcrange::install (
   file {
     $temp_dir:
       ensure => directory;
-  }
 
-  file {
     '/etc/ld.so.conf.d/libperl.conf':
       content => "/usr/${lib}/perl5/CORE";
   }
