@@ -10,6 +10,11 @@ class libcrange::install (
   $mod_ranged_giturl   = 'https://github.com/boinger/mod_ranged.git',
   )
 {
+  if $architecture == "x86_64" {
+    $lib = "lib64"
+  } else {
+    $lib = "lib"
+  }
 
   define pkg_install { ## Local define to make the dependent package installs go smoothly without conflicts
     if (!defined(Package[$name])){
@@ -18,6 +23,11 @@ class libcrange::install (
           ensure => installed;
       }
     }
+  }
+
+  file {
+    '/etc/ld.so.conf.d/libperl.conf':
+      content => "/usr/${lib}/perl5/CORE";
   }
 
   if $libcrange_provider == 'git' or $mod_ranged_provider == 'git' {
@@ -133,6 +143,11 @@ class libcrange::install (
     file {
       $mod_ranged_temp:
         ensure => directory;
+
+      "/etc/httpd/conf.d/${mod_ranged_name}.conf":
+        mode   => 644,
+        source => "puppet:///modules/${module_name}/etc/httpd/conf.d/mod_ranged.conf",
+        notify => Service['httpd'];
     }
 
     exec {
@@ -146,6 +161,22 @@ class libcrange::install (
           Package['git'],
           File["${mod_ranged_temp}"],
         ];
+
+      "apxs ${mod_ranged_name}":
+        cwd     => "${mod_ranged_temp}/${mod_ranged_name}/source",
+        command => "/usr/sbin/apxs -c mod_ranged.c -lcrange",
+        creates => "${mod_ranged_temp}/$mod_ranged_name/source/.libs/${mod_ranged_name}.so",
+        require => [
+          Exec["git clone ${mod_ranged_name}"],
+          Package["httpd"],
+          ];
+
+      "install ${mod_ranged_name}.so":
+        cwd     => "${mod_ranged_temp}/${mod_ranged_name}/source",
+        command => "/usr/bin/install -m 0755 .libs/${mod_ranged_name}.so /usr/${lib}/httpd/modules",
+        creates => "/usr/${lib}/httpd/modules/${mod_ranged_name}.so",
+        notify  => Service['httpd'],
+        require => Exec["apxs ${mod_ranged_name}"];
     }
 
   }
