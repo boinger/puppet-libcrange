@@ -157,7 +157,7 @@ class libcrange::install (
         require => Package['httpd'];
 
       "/etc/range/test.yaml":
-        content => "HB:\n- q(OK)\n";
+        content => "HB:\n- OK\n";
     }
 
     exec {
