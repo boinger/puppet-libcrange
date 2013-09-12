@@ -102,6 +102,11 @@ class libcrange::install (
         require => Exec["make ${libcrange_name}"];
     }
 
+    file {
+      "/etc/range.conf":
+        source  => "puppet:///modules/${module_name}/etc/range.conf";
+    }
+
     if $lib != 'lib' {
       file {
         "/usr/$lib/libcrange.so.0":
@@ -142,9 +147,6 @@ class libcrange::install (
         mode   => 0755,
         ensure => directory;
 
-      "/etc/range.conf":
-        content => "loadmodule nodescf\n";
-
       "/etc/httpd/htdocs":
         ensure => "/var/www/html";
 
@@ -155,7 +157,7 @@ class libcrange::install (
         require => Package['httpd'];
 
       "/etc/range/test/nodes.cf":
-        content => "HB\n\tINCLUDE q(OK)\n";
+        content => "HB\n\t- q(OK)\n";
     }
 
     exec {
