@@ -143,7 +143,7 @@ class libcrange::install (
     pkg_install { $mod_ranged_deps: }
 
     file {
-      [ "/etc/range", "/etc/range/test", ]:
+      "/etc/range":
         mode   => 0755,
         ensure => directory;
 
@@ -157,7 +157,7 @@ class libcrange::install (
         require => Package['httpd'];
 
       "/etc/range/test.yaml":
-        content => "HB\n\t- q(OK)\n";
+        content => "HB\n- q(OK)\n";
     }
 
     exec {
