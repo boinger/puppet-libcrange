@@ -156,7 +156,7 @@ class libcrange::install (
         notify  => Service['httpd'],
         require => Package['httpd'];
 
-      "/etc/range/test/nodes.cf":
+      "/etc/range/test.yaml":
         content => "HB\n\t- q(OK)\n";
     }
 
