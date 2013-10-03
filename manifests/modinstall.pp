@@ -35,7 +35,7 @@ class libcrange::modinstall (
       'zlib-devel',
       ]
 
-    pkg_install { $mod_ranged_deps: }
+    libcrange::pkg_install { $mod_ranged_deps: }
 
     file {
       "/etc/range":

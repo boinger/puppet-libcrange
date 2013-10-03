@@ -12,15 +12,6 @@ class libcrange::install (
     $lib = "lib"
   }
 
-  define pkg_install { ## Local define to make the dependent package installs go smoothly without conflicts
-    if (!defined(Package[$name])){
-      package {
-        $name:
-          ensure => installed;
-      }
-    }
-  }
-
   file {
     $temp_dir:
       ensure => directory;
@@ -41,7 +32,7 @@ class libcrange::install (
       'make',
       ]
 
-    pkg_install { $build_tools: }
+    libcrange::pkg_install { $build_tools: }
   }
 
   $range_deps = [
@@ -56,7 +47,7 @@ class libcrange::install (
     "sqlite",
     ]
 
-  pkg_install { $range_deps: }
+  libcrange::pkg_install { $range_deps: }
 
   if $libcrange_provider == 'git' {
 
@@ -68,7 +59,7 @@ class libcrange::install (
       'sqlite-devel',
       ]
 
-    pkg_install { $range_build_deps: }
+    libcrange::pkg_install { $range_build_deps: }
 
     exec {
       "git clone ${libcrange_name}":
