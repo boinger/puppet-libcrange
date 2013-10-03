@@ -9,6 +9,16 @@ class libcrange::clientinstall (
   Class['libcrange::install'] ->
   Class['libcrange::clientinstall']
 
+  $range_client_deps = [
+    'perl-libwww-perl',
+    'mailcap',
+    'perl-HTML-Parser',
+    'perl-HTML-Tagset',
+    'perl-URI',
+    ]
+
+  libcrange::pkg_install { $range_client_deps: }
+
   if $perl_range_provider == 'git' {
     exec {
       "git clone ${perl_range_name}":
