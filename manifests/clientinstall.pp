@@ -36,7 +36,10 @@ class libcrange::clientinstall (
         cwd     => "${temp_dir}/${perl_range_name}/source",
         command => "perl Makefile.PL && make && make test && make install",
         creates => "/usr/local/share/perl5/Seco/Data/Range.pm",
-        require => Exec["git clone ${perl_range_name}"];
+        require => [
+          Exec["git clone ${perl_range_name}"],
+          Package['perl-libwww-perl'],
+          ];
 
       "install er":
         cwd     => "${temp_dir}/${perl_range_name}",
