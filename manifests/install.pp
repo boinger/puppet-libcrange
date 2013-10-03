@@ -4,12 +4,6 @@ class libcrange::install (
   $temp_dir            = '/tmp/range',
   $libcrange_provider  = 'git',
   $libcrange_giturl    = 'https://github.com/boinger/libcrange.git',
-  $mod_ranged_name     = 'mod_ranged',
-  $mod_ranged_provider = 'git',
-  $mod_ranged_giturl   = 'https://github.com/boinger/mod_ranged.git',
-  $perl_range_name     = 'perl_seco_data_range',
-  $perl_range_provider = 'git',
-  $perl_range_giturl   = 'https://github.com/boinger/perl_seco_data_range.git',
   )
 {
   if $architecture == "x86_64" {
@@ -118,117 +112,6 @@ class libcrange::install (
   }
   else {
     notify { "It's up to you to provde libcrange": }
-  }
-
-  if $mod_ranged_provider == 'git' {
-
-    $mod_ranged_deps = [
-      ## apache mod deps
-      #'flex',
-      #'libyaml',
-      'perl-ExtUtils-MakeMaker',
-      'perl-ExtUtils-Embed',
-      'perl-Test-Simple',
-      'perl-libwww-perl',
-      #'pcre',
-      'zlib',
-      ## apache mod build deps
-      'apr-util-devel',
-      'httpd-devel',
-      #'pcre-devel',
-      #'sqlite-devel',
-      'zlib-devel',
-      ]
-
-    pkg_install { $mod_ranged_deps: }
-
-    file {
-      "/etc/range":
-        mode   => 0755,
-        ensure => directory;
-
-      "/etc/httpd/htdocs":
-        ensure => "/var/www/html";
-
-      "/etc/httpd/conf.d/${mod_ranged_name}.conf":
-        mode    => 644,
-        source  => "puppet:///modules/${module_name}/etc/httpd/conf.d/mod_ranged.conf",
-        notify  => Service['httpd'],
-        require => Package['httpd'];
-
-      "/etc/range/test.yaml":
-        content => "HB:\n- OK\n";
-    }
-
-    exec {
-      "git clone ${mod_ranged_name}":
-        cwd     => $temp_dir,
-        command => "git clone $mod_ranged_giturl",
-        creates => "${temp_dir}/${mod_ranged_name}",
-        timeout => 0,
-        path    => ["/usr/bin"],
-        require => [
-          Package['git'],
-          File["${temp_dir}"],
-        ];
-
-      "apxs ${mod_ranged_name}":
-        cwd     => "${temp_dir}/${mod_ranged_name}/source",
-        command => "/usr/sbin/apxs -c mod_ranged.c -lcrange",
-        creates => "${temp_dir}/$mod_ranged_name/source/.libs/${mod_ranged_name}.so",
-        require => [
-          Exec["install ${libcrange_name}"],
-          Exec["git clone ${mod_ranged_name}"],
-          Package["httpd"],
-          ];
-
-      "install ${mod_ranged_name}.so":
-        cwd     => "${temp_dir}/${mod_ranged_name}/source",
-        command => "/usr/bin/install -m 0755 .libs/${mod_ranged_name}.so /usr/${lib}/httpd/modules",
-        creates => "/usr/${lib}/httpd/modules/${mod_ranged_name}.so",
-        notify  => Service['httpd'],
-        require => Exec["apxs ${mod_ranged_name}"];
-    }
-  }
-  else {
-    notify { "It's up to you to provde mod_ranged": }
-  }
-
-  if $perl_range_provider == 'git' {
-    exec {
-      "git clone ${perl_range_name}":
-        cwd     => $temp_dir,
-        command => "git clone $perl_range_giturl",
-        creates => "${temp_dir}/${perl_range_name}",
-        timeout => 0,
-        path    => ["/usr/bin"],
-        require => [
-          Package['git'],
-          File["${temp_dir}"],
-        ];
-
-      "make ${perl_range_name}":
-        cwd     => "${temp_dir}/${perl_range_name}/source",
-        command => "perl Makefile.PL && make && make test && make install",
-        creates => "/usr/local/share/perl5/Seco/Data/Range.pm",
-        require => Exec["git clone ${perl_range_name}"];
-
-      "install er":
-        cwd     => "${temp_dir}/${perl_range_name}",
-        command => "/usr/bin/install -m 0755 root/usr/bin/er /usr/bin",
-        creates => "/usr/bin/er",
-        require => Exec["git clone ${perl_range_name}"];
-
-      "install er manpage":
-        cwd     => "${temp_dir}/${perl_range_name}",
-        command => "/usr/bin/install -m 0644 root/usr/share/man/man1/er.1 /usr/share/man/man1",
-        creates => "/usr/share/man/man1/er.1",
-        require => Exec["git clone ${perl_range_name}"];
-    }
-
-  }
-  else {
-    notify { "It's up to you to provde ${perl_range_name}": }
   }
 
 }
