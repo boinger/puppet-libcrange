@@ -87,6 +87,13 @@ class libcrange::install (
         require => Exec["make ${libcrange_name}"];
 
       "install ${libcrange_name} perl libs":
+        cwd     => "${temp_dir}/${libcrange_name}/source/perl",
+        user    => root,
+        command => "perl Makefile.PL && make && make install",
+        creates => "/usr/local/lib64/perl5/Libcrange.pm",
+        require => Exec["install ${libcrange_name}"];
+
+      "install supplemental ${libcrange_name} perl libs":
         cwd     => "${temp_dir}/${libcrange_name}/source/root",
         user    => root,
         command => "install ./var/libcrange/perl/* /var/libcrange/perl/",
