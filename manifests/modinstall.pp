@@ -24,7 +24,7 @@ class libcrange::modinstall (
       'perl-ExtUtils-MakeMaker',
       'perl-ExtUtils-Embed',
       'perl-Test-Simple',
-      'perl-libwww-perl',
+      #'perl-libwww-perl', ## installed by client
       #'pcre',
       'zlib',
       ## apache mod build deps
