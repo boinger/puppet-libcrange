@@ -94,7 +94,7 @@ class libcrange::install (
         require => Exec["install ${libcrange_name}"];
 
       "install supplemental ${libcrange_name} perl libs":
-        cwd     => "${temp_dir}/${libcrange_name}/source/root",
+        cwd     => "${temp_dir}/${libcrange_name}/root",
         user    => root,
         command => "install ./var/libcrange/perl/* /var/libcrange/perl/",
         creates => "/var/libcrange/perl/LibrangeUtils.pm",
