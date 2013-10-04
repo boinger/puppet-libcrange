@@ -85,9 +85,23 @@ class libcrange::install (
         command => "make install && ldconfig",
         creates => "${libcrange_home}/bin/crange",
         require => Exec["make ${libcrange_name}"];
+
+      "install ${libcrange_name} perl libs":
+        cwd     => "${temp_dir}/${libcrange_name}/source/root",
+        user    => root,
+        command => "install ./var/libcrange/perl/* /var/libcrange/perl/",
+        creates => "/var/libcrange/perl/LibrangeUtils.pm",
+        require => File["/var/libcrange/perl"];
     }
 
     file {
+      [
+      "/var/libcrange",
+      "/var/libcrange/perl"
+      ]:
+        ensure => directory,
+        mode   => 0755;
+
       "/etc/range.conf":
         source  => "puppet:///modules/${module_name}/etc/range.conf";
     }
