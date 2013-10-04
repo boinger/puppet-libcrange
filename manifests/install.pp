@@ -98,7 +98,10 @@ class libcrange::install (
         user    => root,
         command => "install ./var/libcrange/perl/* /var/libcrange/perl/",
         creates => "/var/libcrange/perl/LibrangeUtils.pm",
-        require => File["/var/libcrange/perl"];
+        require => [
+          File["/var/libcrange/perl"],
+          Exec["git clone ${libcrange_name}"],
+          ];
     }
 
     file {
