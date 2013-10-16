@@ -64,10 +64,10 @@ class libcrange::install (
     exec {
       "git clone ${libcrange_name}":
         cwd     => $temp_dir,
-        command => "git clone $libcrange_giturl",
-        creates => "${temp_dir}/${libcrange_name}",
+        command => "test -f ${libcrange_name}/.git/HEAD || rm -rf ${libcrange_name} && git clone $libcrange_giturl",
+        creates => "${temp_dir}/${libcrange_name}/.git/HEAD",
         timeout => 0,
-        path    => ["/usr/bin"],
+        path    => ["/usr/bin", "/bin"],
         require => [
           Package['git'],
           File["${temp_dir}"],
