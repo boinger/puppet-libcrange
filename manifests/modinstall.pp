@@ -51,8 +51,8 @@ class libcrange::modinstall (
         notify  => Service['httpd'],
         require => Package['httpd'];
 
-      "/etc/range/test.yaml":
-        content => "HB:\n- OK\n";
+      #"/etc/range/test.yaml":
+        #content => "HB:\n- OK\n";
     }
 
     exec {
