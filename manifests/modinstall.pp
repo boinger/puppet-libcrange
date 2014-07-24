@@ -45,14 +45,17 @@ class libcrange::modinstall (
       "/etc/httpd/htdocs":
         ensure => "/var/www/html";
 
+      "/etc/httpd/conf/httpd.conf":
+        mode    => 644,
+        source  => "puppet:///modules/${module_name}/etc/httpd/conf/httpd.conf",
+        notify  => Service['httpd'],
+        require => Package['httpd'];
+
       "/etc/httpd/conf.d/${mod_ranged_name}.conf":
         mode    => 644,
         source  => "puppet:///modules/${module_name}/etc/httpd/conf.d/mod_ranged.conf",
         notify  => Service['httpd'],
         require => Package['httpd'];
-
-      #"/etc/range/test.yaml":
-        #content => "HB:\n- OK\n";
     }
 
     exec {
