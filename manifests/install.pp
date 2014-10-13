@@ -51,13 +51,22 @@ class libcrange::install (
 
   if $libcrange_provider == 'git' {
 
-    $range_build_deps = [
-      'apr-devel',
-      'libyaml-devel',
-      'pcre-devel',
-      'perl-devel',
-      'sqlite-devel',
-      ]
+    if $operatingsystemmajrelease > 5 {
+      $range_build_deps = [
+        'apr-devel',
+        'libyaml-devel',
+        'pcre-devel',
+        'perl-devel',
+        'sqlite-devel',
+        ]
+    } else {
+      $range_build_deps = [
+        'apr-devel',
+        'libyaml-devel',
+        'pcre-devel',
+        'sqlite-devel',
+        ]
+    }
 
     libcrange::pkg_install { $range_build_deps: }
 
