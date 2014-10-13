@@ -35,17 +35,29 @@ class libcrange::install (
     libcrange::pkg_install { $build_tools: }
   }
 
-  $range_deps = [
-    "apr",
-    "flex",
-    "libyaml",
-    "pcre",
-    "perl",
-    "perl-YAML-Syck",
-    "perl-core",
-    "perl-libs",
-    "sqlite",
-    ]
+  if $operatingsystemmajrelease > 5 {
+    $range_deps = [
+      "apr",
+      "flex",
+      "libyaml",
+      "pcre",
+      "perl",
+      "perl-YAML-Syck",
+      "perl-core",
+      "perl-libs",
+      "sqlite",
+      ]
+  } else {
+    $range_deps = [
+      "apr",
+      "flex",
+      "libyaml",
+      "pcre",
+      "perl",
+      "perl-YAML-Syck",
+      "sqlite",
+      ]
+  }
 
   libcrange::pkg_install { $range_deps: }
 
